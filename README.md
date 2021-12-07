@@ -2,10 +2,13 @@
 An implementation of Conway's game of life using OLC::GameEngine
 
 # installation
+
 <h3> GNU/Linux </h3>
+
 ```bash compile.sh```
 
 <h3>lesser platforms</h3>
+
 Read the documentation for olc pixel game engine ??
 
 the header file has all you need in it
