@@ -19,7 +19,7 @@ Booting the app puts you in insert mode.
 
 Click and hold to put down "people". 
 
-Press space to execute.
+Press space to execute, space to pause.
 
 I'll probably add more features.
 
