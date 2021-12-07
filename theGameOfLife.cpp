@@ -22,13 +22,15 @@ public:
 		}
 		return true;
 	}
-
+	// runs every frame
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		// press space to toggle the modes
 		switch(gameState)
 		{
 			case 0: // insert mode
 			{
+				// lay down the sauce
 				if (GetMouse(0).bHeld)
 				{
 					gameBoard[GetMouseX()][GetMouseY()] = 1;
@@ -39,10 +41,10 @@ public:
 					gameState = 1;
 					return true;
 				}
-
-				for(int x = 0; x < 255; x++)
+				// display the sauce
+				for(int x = 0; x < 256; x++)
 				{
-					for(int y = 0; y < 255; y++)
+					for(int y = 0; y < 240; y++)
 					{
 						if(gameBoard[x][y] == 0) Draw(x, y, olc::WHITE);
 						else Draw(x, y, olc::BLACK);
@@ -106,6 +108,7 @@ public:
 		}
 		copyArray();
 	}
+	// returns an int with the number of surrounding "people"
 	int getSurroundedBy(int x, int y)
 	{
 		if(x == 0 || y == 0 || x == 256 || y == 240)
@@ -126,6 +129,8 @@ public:
 			return count;
 		}
 	}
+	// had to make a tiny copy function
+	// when I'm not lazy I'll reimplement the arrays as std::arrays
 	void copyArray()
 	{
 			for(int i = 0; i < 256; i++)
@@ -137,6 +142,7 @@ public:
 			}
 	}
 private:
+	// these should be std::arrays
 	int newGameBoard[256][240];
 	int gameBoard[256][240];
 	int gameState = 0;
