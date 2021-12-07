@@ -1,6 +1,8 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
+#include <array>
 #include <unistd.h>
+
 class Example : public olc::PixelGameEngine
 {
 public:
@@ -8,24 +10,24 @@ public:
 	{
 		sAppName = "Example";
 	}
+	
 	bool OnUserCreate() override
 	{
-		for(int x = 0; x < 255; x++)
+		for(int x = 0; x < 256; x++)
 		{
-			for(int y = 0; y < 255; y++)
+			for(int y = 0; y < 256; y++)
 			{
 				gameBoard[x][y] = 0;
 			}
 		}
-		gameState = 0;
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		switch (gameState)
+		switch(gameState)
 		{
-			case 0:
+			case 0: // insert mode
 			{
 				if (GetMouse(0).bHeld)
 				{
@@ -48,112 +50,105 @@ public:
 				}
 				return true;
 			}
-			case 1:
+			case 1: // run mode
 			{
-				for(int x = 0; x < 255; x++)
+				if(GetKey(olc::Key::SPACE).bPressed)
 				{
-					for(int y = 0; y < 255; y++)
+					gameState = 0;
+					return true;
+				}
+				updateGameBoard();
+				// Draw
+				for(int x = 0; x < 256; x++)
+				{
+					for(int y = 0; y < 240; y++)
 					{
-						// 1 is alive
-						if(gameBoard[x][y] == 1) 
+						// dead
+						if(gameBoard[x][y] == 0)
 						{
-							if(!dead(x, y))
-							{
-								Draw(x, y, olc::BLACK);
-							}
-							else
-							{
-								Draw(x, y, olc::WHITE);
-								gameBoard[x][y] = 0;
-							}
-						// 0 is dead
+							Draw(x, y, olc::WHITE);
 						}
+						// alive cell
 						else
 						{
-							// if it stays dead
-							if(!alive(x, y))
-								Draw(x, y, olc::WHITE);
-							else
-							{
-								Draw(x, y, olc::BLACK);
-								gameBoard[x][y] = 1;
-							}
+							Draw(x, y, olc::BLACK);
 						}
-					}
+					}	
 				}
-			
+				return true;
 			}
-			default:
+			default: // useless
 				return true;
 		}
 	}
-
-	void getSurroundedBy(int x, int y)
+	void updateGameBoard()
 	{
-		if(x == 0 || y == 0 || x == 255 || y == 255)
+		for(int x = 0; x < 256; x++)
 		{
-			for(int x2 = 0; x2 < 3; x2++)
+			for(int y = 0; y < 240; y++)
 			{
-				for(int y2 = 0; y2 < 3; y2++)
+				int count = getSurroundedBy(x, y);
+				if(gameBoard[x][y] == 0)
 				{
-					surroundedBy[x2][y2] = 0;
+					if(count == 3)
+						newGameBoard[x][y] = 1;
+					else
+						newGameBoard[x][y] = 0;
+				}
+				else
+				{
+					if(count < 2 || count > 3)
+						newGameBoard[x][y] = 0;
+					else
+						newGameBoard[x][y] = 1;
 				}
 			}
+		}
+		copyArray();
+	}
+	int getSurroundedBy(int x, int y)
+	{
+		if(x == 0 || y == 0 || x == 256 || y == 240)
+		{
+			return 0;
 		}
 		else
 		{
-			for(int x2 = -1; x2 < 2; x2++)
+			int count = 0;
+			for(int i = -1; i <= 1; i++)
 			{
-				for(int y2 = -1; y2 < 2; y2++)
+				for(int j = -1; j <= 1; j++)
 				{
-					surroundedBy[x2 + 1][y2 + 1] = gameBoard[x + x2][y + y2];
+					if(gameBoard[x + i][y + j] == 1) count++;
 				}
 			}
+			if (gameBoard[x][y] == 1) count--;
+			return count;
 		}
 	}
-
-	bool dead(int x, int y)
+	void copyArray()
 	{
-		getSurroundedBy(x, y);
-		int count = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			for(int j = 0; j < 3; j++)
+			for(int i = 0; i < 256; i++)
 			{
-				if(surroundedBy[i][j] == 1) count++;
+				for(int j = 0; j < 240; j++)
+				{
+					gameBoard[i][j] = newGameBoard[i][j];
+				}
 			}
-		}
-		if (count <= 1) return true;
-		else if (count >= 4) return true;
-		else return false;
 	}
-	bool alive(int x, int y)
-	{
-		getSurroundedBy(x, y);
-		int count = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			for(int j = 0; j < 3; j++)
-			{
-				if(surroundedBy[i][j] == 1) count++;
-			}
-		}
-		if(count == 3) return true;
-		else return false;
-	}
-
 private:
-	int gameBoard[255][255];
-	int gameState;
-	int surroundedBy[3][3];
+	int newGameBoard[256][240];
+	int gameBoard[256][240];
+	int gameState = 0;
 };
 
 
 int main()
 {
 	Example demo;
-	if (demo.Construct(255, 255, 2, 2, false, true))
+	if (demo.Construct(256, 240, 4, 4, false, true))
 		demo.Start();
 
 	return 0;
 }
+
