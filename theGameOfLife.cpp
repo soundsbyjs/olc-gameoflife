@@ -83,6 +83,7 @@ public:
 				return true;
 		}
 	}
+	// updates the gameboard for the next frame
 	void updateGameBoard()
 	{
 		for(int x = 0; x < 256; x++)
