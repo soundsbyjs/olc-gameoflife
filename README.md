@@ -28,11 +28,3 @@ I'll probably add more features.
 ```12/7/21```
 
 made it work properly
-
-now it has to be able to zoom in
-
-the user should be able to set the size of the gameboard and the max resolution displayed
-
-in a way that properly takes care of memory
-
-FML
